@@ -13,7 +13,7 @@ class HttpServer {
         HttpServer(int port);
         ~HttpServer();
 
-        void registerHandler(const std::string& requestPath, RequestHandler* handler);
+        void registerHandler(const std::string& requestURI, RequestHandler* handler);
         
         bool start();
         void stop();
@@ -22,12 +22,15 @@ class HttpServer {
         int port_;
         int socketFD_;
         bool alive_;
+        RequestHandler* defaultHandler_;
         
         std::vector<RouteInfo> routes_;
+        
 
         void acceptConnection();
         void handleConnection(int clientFD);
-        RequestHandler* findHandler(const HttpRequest& httpRequest);
+        // non const arg, as it enriches the request params based on matching route
+        RequestHandler* findHandler(HttpRequest& httpRequest);
 };
 
 #endif

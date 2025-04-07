@@ -40,6 +40,11 @@ std::string HttpRequest::getPath() const {
     return path_;
 }
 
+std::string HttpRequest::getPathParam(const std::string& name) const {
+    auto it = pathParams_.find(name);
+    return (it != pathParams_.end()) ? it->second : "";
+}
+
 std::string HttpRequest::getVersion() const {
     return version_;
 }
@@ -54,6 +59,10 @@ std::string HttpRequest::getHeader(const std::string& name) const {
 
 std::string HttpRequest::getBody() const {
     return body_;
+}
+
+void HttpRequest::setPathParam(const std::string& name, const std::string& value) {
+    pathParams_[name] = value;
 }
 
 void HttpRequest::parseMethod(std::string methodStr) {

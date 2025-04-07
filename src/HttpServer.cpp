@@ -1,8 +1,10 @@
 #include "../include/HttpServer.h"
 #include "../include/HttpRequest.h"
 #include "../include/HttpResponse.h"
+#include "../include/ResourceNotFoundHandler.h"
 
 #include <ostream>
+#include <regex>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
@@ -11,14 +13,48 @@
 #include <stdexcept>
 
 HttpServer::HttpServer(int port) : port_(port), socketFD_(-1), alive_(false) {
+    defaultHandler_ = new ResourceNotFoundHandler();
     std::cout << "Created Http Server" << std::endl;
 }
 
 HttpServer::~HttpServer() {
     stop();
+    delete defaultHandler_;
+    std::cout << "Stopped server running on port " << port_ << std::endl; 
 }
 
-void HttpServer::registerHandler(const std::string& requestPath, RequestHandler* handler) {
+// convert '/path/:id/*/api' -> '^/path/([^/]+)/.*/api$' and tie to RequestHandler
+void HttpServer::registerHandler(const std::string& requestURI, RequestHandler* handler) {
+    RouteInfo route;
+
+    std::string pattern = "^";
+    size_t start = 0, colon = -1;
+
+    while ((colon = requestURI.find(':', start)) != std::string::npos) {
+        pattern += requestURI.substr(start, colon - start);
+        
+        size_t paramEnd = requestURI.find('/', colon);
+        if (paramEnd == std::string::npos) {
+            paramEnd = requestURI.length();
+        }
+
+        std::string paramName = requestURI.substr(colon + 1, paramEnd - colon -1);
+        route.paramNames.push_back(paramName);
+
+        pattern += "([^/]+)";
+        start = paramEnd;
+    }
+    
+    pattern += requestURI.substr(start) + "$";
+
+    size_t asterisk;
+    while ((asterisk = pattern.find('*')) != std::string::npos) {
+        pattern.replace(asterisk, 1, ".*");
+    }
+
+    route.pattern = std::regex(pattern);
+    route.handler = std::move(handler);
+    routes_.push_back(route);
 }
 
 bool HttpServer::start() {
@@ -110,18 +146,33 @@ void HttpServer::handleConnection(int clientFD) {
     }
 
     RequestHandler* handler = findHandler(request);
-    
+
     HttpResponse response;
     
     handler->handle(request, response);
     
     std::string response_str = response.toString();   
-    std::cout << "Response : " << response_str << std::endl;
+    std::cout << "Server Response : " << response_str << std::endl;
     write(clientFD, response_str.c_str(), response_str.length());
     
     close(clientFD);
 }
 
 
-RequestHandler* HttpServer::findHandler(const HttpRequest& httpRequest) {
+RequestHandler* HttpServer::findHandler(HttpRequest& httpRequest) {
+    std::string path = httpRequest.getPath();
+
+    for (const auto& route : routes_) {
+        std::smatch matches;
+        if (std::regex_match(path, matches, route.pattern)) {
+            
+            for (size_t i = 0 ; i < route.paramNames.size() && i + 1 < matches.size(); ++i) {
+                httpRequest.setPathParam(route.paramNames[i], matches[i + 1].str());
+            }
+
+            return route.handler;
+        }
+    }
+    std::cout << "Using Default Handler" << std::endl;
+    return defaultHandler_;
 }
