@@ -1,4 +1,4 @@
-#include "../include/HttpRequest.h"
+#include <HttpRequest.h>
 #include <sstream>
 
 HttpRequest::HttpRequest() : method_(UNKNOWN) {

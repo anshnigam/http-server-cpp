@@ -1,7 +1,7 @@
-#include "../include/HttpServer.h"
-#include "../include/HttpRequest.h"
-#include "../include/HttpResponse.h"
-#include "../include/ResourceNotFoundHandler.h"
+#include <HttpServer.h>
+#include <HttpRequest.h>
+#include <HttpResponse.h>
+#include <ResourceNotFoundHandler.h>
 
 #include <ostream>
 #include <regex>

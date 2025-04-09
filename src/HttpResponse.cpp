@@ -1,4 +1,4 @@
-#include "../include/HttpResponse.h"
+#include <HttpResponse.h>
 #include <sstream>
 
 HttpResponse::HttpResponse() : statusCode_(200), statusMessage_("OK") {
