@@ -7,8 +7,10 @@ SRC_DIR = src
 OBJ_DIR = build
 INCLUDE_DIR = include
 
-# Source and object files
-SRCS = $(wildcard $(SRC_DIR)/*.cpp)
+# Find all .cpp source files recursively
+SRCS = $(shell find $(SRC_DIR) -name "*.cpp")
+
+# Replace 'src/' with 'build/' and '.cpp' with '.o' for object files
 OBJS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 
 # Output executable
@@ -17,17 +19,18 @@ TARGET = http_server_cpp
 # Default target
 all: $(TARGET)
 
-# Link object files into the final executable
+# Link object files into final binary
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-# Compile each .cpp file into a .o file in the build directory
+# Compile source files to object files, mirroring directory structure
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Clean up
+# Clean build artifacts
 clean:
 	rm -rf $(OBJ_DIR) $(TARGET)
 
 .PHONY: all clean
+
