@@ -1,4 +1,8 @@
 #include "HttpServer.hpp"
+#include "handler/RequestHandler.hpp"
+#include "handler/impl/BadRequestHandler.hpp"
+#include "handler/impl/MethodNotFoundHandler.hpp"
+#include "request/HttpMethod.hpp"
 #include "request/HttpRequest.hpp"
 #include "response/HttpResponse.hpp"
 #include "handler/impl/ResourceNotFoundHandler.hpp"
@@ -12,18 +16,22 @@
 #include <iostream>
 
 HttpServer::HttpServer(int port) : port_(port), socketFD_(-1), alive_(false) {
-    defaultHandler_ = new ResourceNotFoundHandler();
+    badRequestHandler_ = new BadRequestHandler();
+    resourceNotFoundHandler_ = new ResourceNotFoundHandler();
+    methodNotFoundHandler_ = new MethodNotFoundHandler();
     std::cout << "Created Http Server" << std::endl;
 }
 
 HttpServer::~HttpServer() {
     stop();
-    delete defaultHandler_;
+    delete badRequestHandler_;
+    delete resourceNotFoundHandler_;
+    delete methodNotFoundHandler_;
     std::cout << "Stopped server running on port " << port_ << std::endl; 
 }
 
 // convert '/path/:id/*/api' -> '^/path/([^/]+)/.*/api$' and tie to RequestHandler
-void HttpServer::registerHandler(const std::string& requestURI, RequestHandler* handler) {
+void HttpServer::registerHandler(const HttpMethod method, const std::string& requestURI, RequestHandler* handler) {
     RouteInfo route;
 
     std::string pattern = "^";
@@ -51,6 +59,7 @@ void HttpServer::registerHandler(const std::string& requestURI, RequestHandler* 
         pattern.replace(asterisk, 1, ".*");
     }
     
+    route.method = method;
     route.pattern = std::regex(pattern);
     route.handler = std::move(handler);
     routes_.push_back(route);
@@ -159,18 +168,23 @@ void HttpServer::handleConnection(int clientFD) {
 
 RequestHandler* HttpServer::findHandler(HttpRequest& httpRequest) {
     std::string path = httpRequest.getPath();
+    
+    bool patternMatchingHandlerExists = false;
 
     for (const auto& route : routes_) {
         std::smatch matches;
         if (std::regex_match(path, matches, route.pattern)) {
-            
+            patternMatchingHandlerExists = true;
+
             for (size_t i = 0 ; i < route.paramNames.size() && i + 1 < matches.size(); ++i) {
                 httpRequest.setPathParam(route.paramNames[i], matches[i + 1].str());
             }
-
-            return route.handler;
+            
+            if (route.method == httpRequest.getMethod()) {
+                return route.handler;
+            }
         }
     }
-    std::cout << "Using Default Handler" << std::endl;
-    return defaultHandler_;
+
+    return (patternMatchingHandlerExists) ? methodNotFoundHandler_ : resourceNotFoundHandler_;
 }

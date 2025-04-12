@@ -1,22 +1,18 @@
 #ifndef HTTPREQUEST_HPP
 #define HTTPREQUEST_HPP
 
+#include "request/HttpMethod.hpp"
 #include <string>
 #include <sstream>
 #include <map>
 
 class HttpRequest {
     public:
-        enum Method {
-            GET, POST, PUT, DELETE, HEAD, OPTIONS, PATCH, TRACE,
-            UNKNOWN
-        };
-
         HttpRequest();
 
         bool parse(const std::string& raw_request);
 
-        Method getMethod() const;
+        HttpMethod getMethod() const;
         std::string getPath() const;
         std::string getPathParam(const std::string& name) const;
         std::string getVersion() const;
@@ -25,7 +21,7 @@ class HttpRequest {
         void setPathParam(const std::string& name, const std::string& value);
 
     private:
-        Method method_;
+        HttpMethod method_;
         std::string path_;
         std::map<std::string, std::string> pathParams_;
         std::string version_;

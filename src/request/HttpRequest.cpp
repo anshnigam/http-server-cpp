@@ -1,7 +1,8 @@
 #include "request/HttpRequest.hpp"
+#include "request/HttpMethod.hpp"
 #include <sstream>
 
-HttpRequest::HttpRequest() : method_(UNKNOWN) {
+HttpRequest::HttpRequest() : method_(HttpMethod::UNKNOWN) {
     
 }
 
@@ -32,7 +33,7 @@ bool HttpRequest::parse(const std::string& rawRequest) {
     return true;
 }
 
-HttpRequest::Method HttpRequest::getMethod() const {
+HttpMethod HttpRequest::getMethod() const {
     return method_;
 }
 
@@ -67,23 +68,23 @@ void HttpRequest::setPathParam(const std::string& name, const std::string& value
 
 void HttpRequest::parseMethod(std::string methodStr) {
     if (methodStr == "GET") {
-        method_ = HttpRequest::GET;
+        method_ = HttpMethod::GET;
     } else if (methodStr == "POST") {
-        method_ = HttpRequest::POST;
+        method_ = HttpMethod::POST;
     } else if (methodStr == "PUT") {
-        method_ = HttpRequest::PUT;
+        method_ = HttpMethod::PUT;
     } else if (methodStr == "DELETE") {
-        method_ = HttpRequest::DELETE;
+        method_ = HttpMethod::DELETE;
     } else if (methodStr == "HEAD") {
-        method_ = HttpRequest::HEAD;
+        method_ = HttpMethod::HEAD;
     } else if (methodStr == "OPTIONS") {
-        method_ = HttpRequest::OPTIONS;
+        method_ = HttpMethod::OPTIONS;
     } else if (methodStr == "PATCH") {
-        method_ = HttpRequest::PATCH;
+        method_ = HttpMethod::PATCH;
     } else if (methodStr == "TRACE") {
-        method_ = HttpRequest::TRACE;
+        method_ = HttpMethod::TRACE;
     } else {
-        method_ = HttpRequest::UNKNOWN;
+        method_ = HttpMethod::UNKNOWN;
     }
 }
 
@@ -108,7 +109,7 @@ void HttpRequest::parseHeaders(std::istringstream& requestStream) {
 }
 
 void HttpRequest::parseBody(std::istringstream& requestStream) {
-    if (method_ == POST || method_ == PUT) {
+    if (method_ == HttpMethod::POST || method_ == HttpMethod::PUT) {
         // Read the entire remaining content as body
         std::stringstream body_stream;
         body_stream << requestStream.rdbuf();

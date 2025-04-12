@@ -5,10 +5,6 @@
 
 class HelloWorldController: public RequestHandler {
     public:
-        void handle(const HttpRequest& httpRequest, HttpResponse& httpResponse) override {
-            httpResponse.setStatus(200, "Ok");
-            httpResponse.setBody("<html><body>Hello World</body></html>");
-        }
+        void handle(const HttpRequest& httpRequest, HttpResponse& httpResponse) override;
 };
-
 #endif

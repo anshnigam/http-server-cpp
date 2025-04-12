@@ -1,6 +1,7 @@
 #ifndef HTTPSERVER_HPP
 #define HTTPSERVER_HPP
 
+#include "request/HttpMethod.hpp"
 #include "request/HttpRequest.hpp"
 #include "handler/RequestHandler.hpp"
 #include "request/RouteInfo.hpp"
@@ -13,7 +14,7 @@ class HttpServer {
         HttpServer(int port);
         ~HttpServer();
 
-        void registerHandler(const std::string& requestURI, RequestHandler* handler);
+        void registerHandler(const HttpMethod requestMethod, const std::string& requestURI, RequestHandler* handler);
         
         bool start();
         void stop();
@@ -22,7 +23,9 @@ class HttpServer {
         int port_;
         int socketFD_;
         bool alive_;
-        RequestHandler* defaultHandler_;
+        RequestHandler* badRequestHandler_;
+        RequestHandler* resourceNotFoundHandler_;
+        RequestHandler* methodNotFoundHandler_;
         
         std::vector<RouteInfo> routes_;
         
