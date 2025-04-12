@@ -1,7 +1,7 @@
-#include <HttpServer.h>
-#include <HttpRequest.h>
-#include <HttpResponse.h>
-#include <ResourceNotFoundHandler.h>
+#include "HttpServer.hpp"
+#include "request/HttpRequest.hpp"
+#include "response/HttpResponse.hpp"
+#include "handler/impl/ResourceNotFoundHandler.hpp"
 
 #include <ostream>
 #include <regex>
@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
-#include <stdexcept>
 
 HttpServer::HttpServer(int port) : port_(port), socketFD_(-1), alive_(false) {
     defaultHandler_ = new ResourceNotFoundHandler();
@@ -51,7 +50,7 @@ void HttpServer::registerHandler(const std::string& requestURI, RequestHandler* 
     while ((asterisk = pattern.find('*')) != std::string::npos) {
         pattern.replace(asterisk, 1, ".*");
     }
-
+    
     route.pattern = std::regex(pattern);
     route.handler = std::move(handler);
     routes_.push_back(route);
@@ -144,7 +143,7 @@ void HttpServer::handleConnection(int clientFD) {
         close(clientFD);
         return;
     }
-
+    
     RequestHandler* handler = findHandler(request);
 
     HttpResponse response;
@@ -152,7 +151,6 @@ void HttpServer::handleConnection(int clientFD) {
     handler->handle(request, response);
     
     std::string response_str = response.toString();   
-    std::cout << "Server Response : " << response_str << std::endl;
     write(clientFD, response_str.c_str(), response_str.length());
     
     close(clientFD);
