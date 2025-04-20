@@ -2,6 +2,7 @@
 #include "handler/RequestHandler.hpp"
 #include "handler/impl/BadRequestHandler.hpp"
 #include "handler/impl/MethodNotFoundHandler.hpp"
+#include "pool/executor/ThreadPoolExecutor.hpp"
 #include "request/HttpMethod.hpp"
 #include "request/HttpRequest.hpp"
 #include "response/HttpResponse.hpp"
@@ -15,7 +16,7 @@
 #include <cstring>
 #include <iostream>
 
-HttpServer::HttpServer(int port) : port_(port), socketFD_(-1), alive_(false) {
+HttpServer::HttpServer(int port) : port_(port), socketFD_(-1), alive_(false), threadPool_(2) {
     badRequestHandler_ = new BadRequestHandler();
     resourceNotFoundHandler_ = new ResourceNotFoundHandler();
     methodNotFoundHandler_ = new MethodNotFoundHandler();
@@ -124,7 +125,10 @@ void HttpServer::acceptConnection() {
             std::cerr << "ERROR on accept" << std::endl;
             continue;
         }
-        handleConnection(clientFD);
+
+        threadPool_.enqueue([this, clientFD]() {
+            this->handleConnection(clientFD);
+        });
     }
 }
 

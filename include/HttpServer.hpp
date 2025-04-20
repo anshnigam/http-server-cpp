@@ -1,6 +1,7 @@
 #ifndef HTTPSERVER_HPP
 #define HTTPSERVER_HPP
 
+#include "pool/executor/ThreadPoolExecutor.hpp"
 #include "request/HttpMethod.hpp"
 #include "request/HttpRequest.hpp"
 #include "handler/RequestHandler.hpp"
@@ -23,9 +24,11 @@ class HttpServer {
         int port_;
         int socketFD_;
         bool alive_;
+
         RequestHandler* badRequestHandler_;
         RequestHandler* resourceNotFoundHandler_;
         RequestHandler* methodNotFoundHandler_;
+        ThreadPoolExecutor threadPool_;
         
         std::vector<RouteInfo> routes_;
         
