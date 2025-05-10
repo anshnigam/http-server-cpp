@@ -1,6 +1,6 @@
 #include "request/HttpRequest.hpp"
-#include "request/HttpMethod.hpp"
 #include <sstream>
+#include <string>
 
 HttpRequest::HttpRequest() : method_(HttpMethod::UNKNOWN) {
     
@@ -28,6 +28,7 @@ bool HttpRequest::parse(const std::string& rawRequest) {
 
     parseMethod(methodStr);
     parseHeaders(requestStream);
+    parseCookies();
     parseBody(requestStream);
 
     return true;
@@ -56,6 +57,14 @@ std::string HttpRequest::getHeader(const std::string& name) const {
         return it->second;
     }
     return "";
+}
+
+const Cookie* HttpRequest::getCookie(const std::string& name) const {
+    auto it = cookies_.find(name);
+    if (it != cookies_.end()) {
+        return &(it->second);
+    }
+    return nullptr;
 }
 
 std::string HttpRequest::getBody() const {
@@ -106,6 +115,24 @@ void HttpRequest::parseHeaders(std::istringstream& requestStream) {
             headers_[header_name] = header_value;
         }
     } 
+}
+
+void HttpRequest::parseCookies() {
+    auto it = headers_.find("Cookie");
+    if (it == headers_.end()) {
+        return;
+    }
+
+    const std::string& cookieHeader = it->second;
+    std::istringstream cookieStream(cookieHeader);
+    std::string nameValuePair;
+
+    while (std::getline(cookieStream, nameValuePair, ';')) {
+        nameValuePair.erase(0, nameValuePair.find_first_not_of(" \t"));
+        nameValuePair.erase(nameValuePair.find_last_not_of(" \t") + 1);
+        Cookie cookie = Cookie::valueOf(nameValuePair);
+        cookies_.emplace(cookie.getName(), cookie);
+    }
 }
 
 void HttpRequest::parseBody(std::istringstream& requestStream) {
