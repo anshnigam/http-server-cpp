@@ -9,8 +9,8 @@
 #include <type_traits>
 #include <vector>
 #include <memory>
+#include <queue>
 #include <stdexcept>
-#include <type_traits>
 #include <utility>
 
 class ThreadPoolExecutor {
@@ -19,7 +19,7 @@ class ThreadPoolExecutor {
         ~ThreadPoolExecutor();
 
         template<class F, class... Args>
-        auto enqueue(F&& f, Args&&... args) -> std::future<typename std::result_of<F(Args...)>::type>;
+        auto enqueue(F&& f, Args&&... args) -> std::future<typename std::invoke_result_t<F, Args...>>;
         void shutdown();
 
     private:
@@ -34,26 +34,27 @@ class ThreadPoolExecutor {
 inline ThreadPoolExecutor::ThreadPoolExecutor(size_t numberOfThreads) : stop_(false) {
     for (size_t i = 0 ; i < numberOfThreads ; ++i ) {
         workers_.emplace_back([this] {
-            
-            std::function<void()> task;
-            
-            // critical section
-            {
-                std::unique_lock<std::mutex> lock(this->queueMutex_);
-                
-                this->queueCondition_.wait(lock, [this] {
-                    return this->stop_ || !this->tasks_.empty();
-                });
+            while (true) {
+                std::function<void()> task;
 
-                if (this->stop_ && this->tasks_.empty()) {
-                    return;
+                // critical section
+                {
+                    std::unique_lock<std::mutex> lock(this->queueMutex_);
+
+                    this->queueCondition_.wait(lock, [this] {
+                        return this->stop_ || !this->tasks_.empty();
+                    });
+
+                    if (this->stop_ && this->tasks_.empty()) {
+                        return;
+                    }
+
+                    task = std::move(this->tasks_.front());
+                    this->tasks_.pop();
                 }
 
-                task = std::move(this->tasks_.front());
-                this->tasks_.pop();
+                task();
             }
-
-            task();
         });
     }
 }
@@ -79,10 +80,10 @@ inline void ThreadPoolExecutor::shutdown() {
 
 
 template<class F, class... Args>
-auto ThreadPoolExecutor::enqueue(F&& f, Args&&... args) -> std::future<typename std::result_of<F(Args...)>::type> {
+auto ThreadPoolExecutor::enqueue(F&& f, Args&&... args) -> std::future<typename std::invoke_result_t<F, Args...>> {
    
-    using returnType = typename std::result_of<F(Args...)>::type;
-    
+    using returnType = typename std::invoke_result_t<F, Args...>;
+
     auto task = std::make_shared<std::packaged_task<returnType()>>(
         std::bind(std::forward<F>(f), std::forward<Args>(args)...)
     );

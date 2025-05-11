@@ -3,6 +3,7 @@
 
 #include "request/HttpMethod.hpp"
 #include "common/Cookie.hpp"
+#include <optional>
 #include <string>
 #include <sstream>
 #include <map>
@@ -18,7 +19,7 @@ class HttpRequest {
         std::string getPathParam(const std::string& name) const;
         std::string getVersion() const;
         std::string getHeader(const std::string& name) const;
-        const Cookie* getCookie(const std::string& name) const;
+        std::optional<Cookie> getCookie(const std::string& name) const;
         std::string getBody() const;
         void setPathParam(const std::string& name, const std::string& value);
 

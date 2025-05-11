@@ -1,6 +1,4 @@
 #include "request/HttpRequest.hpp"
-#include <sstream>
-#include <string>
 
 HttpRequest::HttpRequest() : method_(HttpMethod::UNKNOWN) {
     
@@ -59,12 +57,12 @@ std::string HttpRequest::getHeader(const std::string& name) const {
     return "";
 }
 
-const Cookie* HttpRequest::getCookie(const std::string& name) const {
+std::optional<Cookie> HttpRequest::getCookie(const std::string& name) const {
     auto it = cookies_.find(name);
     if (it != cookies_.end()) {
-        return &(it->second);
+        return it->second;
     }
-    return nullptr;
+    return std::nullopt;
 }
 
 std::string HttpRequest::getBody() const {
