@@ -1,8 +1,8 @@
 #ifndef HTTPREQUEST_HPP
 #define HTTPREQUEST_HPP
 
-#include "request/HttpMethod.hpp"
-#include "common/Cookie.hpp"
+#include "model/request/HttpMethod.hpp"
+#include "model/common/Cookie.hpp"
 #include <optional>
 #include <string>
 #include <sstream>

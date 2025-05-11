@@ -1,8 +1,8 @@
 #ifndef REQUESTHANDLER_HPP
 #define REQUESTHANDLER_HPP
 
-#include "request/HttpRequest.hpp"
-#include "response/HttpResponse.hpp"
+#include "model/request/HttpRequest.hpp"
+#include "model/response/HttpResponse.hpp"
 
 class RequestHandler {
     public:

@@ -1,4 +1,4 @@
-#include "request/HttpRequest.hpp"
+#include "model/request/HttpRequest.hpp"
 
 HttpRequest::HttpRequest() : method_(HttpMethod::UNKNOWN) {
     

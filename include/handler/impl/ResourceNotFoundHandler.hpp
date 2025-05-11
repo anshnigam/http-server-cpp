@@ -1,9 +1,9 @@
 #ifndef RESOURCENOTFOUNDHANDLER_HPP
 #define RESOURCENOTFOUNDHANDLER_HPP
 
-#include "request/HttpRequest.hpp"
-#include "response/HttpResponse.hpp"
 #include "handler/RequestHandler.hpp"
+#include "model/request/HttpRequest.hpp"
+#include "model/response/HttpResponse.hpp"
 
 class ResourceNotFoundHandler: public RequestHandler {
     public:

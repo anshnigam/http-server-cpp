@@ -2,7 +2,7 @@
 #define ROUTEINFO_HPP
 
 #include "handler/RequestHandler.hpp"
-#include "request/HttpMethod.hpp"
+#include "model/request/HttpMethod.hpp"
 #include <string>
 #include <regex>
 #include <vector>

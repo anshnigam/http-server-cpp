@@ -2,10 +2,10 @@
 #define HTTPSERVER_HPP
 
 #include "pool/executor/ThreadPoolExecutor.hpp"
-#include "request/HttpMethod.hpp"
-#include "request/HttpRequest.hpp"
+#include "model/request/HttpMethod.hpp"
+#include "model/request/HttpRequest.hpp"
+#include "model/request/RouteInfo.hpp"
 #include "handler/RequestHandler.hpp"
-#include "request/RouteInfo.hpp"
 #include <string>
 #include <vector>
 

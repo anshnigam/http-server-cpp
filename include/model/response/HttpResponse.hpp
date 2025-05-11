@@ -1,7 +1,7 @@
 #ifndef HTTPRESPONSE_HPP
 #define HTTPRESPONSE_HPP
 
-#include "common/Cookie.hpp"
+#include "model/common/Cookie.hpp"
 #include <map>
 #include <string>
 #include <vector>

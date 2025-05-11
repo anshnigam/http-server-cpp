@@ -3,9 +3,9 @@
 #include "handler/impl/BadRequestHandler.hpp"
 #include "handler/impl/MethodNotFoundHandler.hpp"
 #include "pool/executor/ThreadPoolExecutor.hpp"
-#include "request/HttpMethod.hpp"
-#include "request/HttpRequest.hpp"
-#include "response/HttpResponse.hpp"
+#include "model/request/HttpMethod.hpp"
+#include "model/request/HttpRequest.hpp"
+#include "model/response/HttpResponse.hpp"
 #include "handler/impl/ResourceNotFoundHandler.hpp"
 
 #include <ostream>

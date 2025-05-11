@@ -1,6 +1,6 @@
 #include "controller/HelloWorldController.hpp"
 #include "HttpServer.hpp"
-#include "request/HttpMethod.hpp"
+#include "model/request/HttpMethod.hpp"
 #include <iostream>
 
 int main() {

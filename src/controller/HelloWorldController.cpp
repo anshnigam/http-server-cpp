@@ -1,6 +1,6 @@
-#include "common/Cookie.hpp"
-#include "request/HttpRequest.hpp"
-#include "response/HttpResponse.hpp"
+#include "model/common/Cookie.hpp"
+#include "model/request/HttpRequest.hpp"
+#include "model/response/HttpResponse.hpp"
 #include "controller/HelloWorldController.hpp"
 
 #include <iostream>

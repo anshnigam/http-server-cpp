@@ -2,7 +2,7 @@
 #define COOKIE_HPP
 
 # include <string>
-# include "SameSite.hpp"
+# include "model/common/SameSite.hpp"
 
 class Cookie {
     public:

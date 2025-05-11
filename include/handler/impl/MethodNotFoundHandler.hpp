@@ -2,8 +2,8 @@
 #define METHODNOTFOUNDHANDLER_HPP
 
 #include "handler/RequestHandler.hpp"
-#include "request/HttpRequest.hpp"
-#include "response/HttpResponse.hpp"
+#include "model/request/HttpRequest.hpp"
+#include "model/response/HttpResponse.hpp"
 
 class MethodNotFoundHandler: public RequestHandler {
     public:
